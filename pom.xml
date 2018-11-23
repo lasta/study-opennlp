@@ -16,6 +16,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kuromoji.version>0.9.0</kuromoji.version>
         <opennlp.version>1.9.0</opennlp.version>
+        <orangesignal.version>2.2.1</orangesignal.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -47,6 +48,12 @@
             <artifactId>opennlp-tools</artifactId>
             <version>${opennlp.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.orangesignal</groupId>
+            <artifactId>orangesignal-csv</artifactId>
+            <version>${orangesignal.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
