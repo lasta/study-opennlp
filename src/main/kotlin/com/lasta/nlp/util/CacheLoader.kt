@@ -1,4 +1,4 @@
-package com.lasta.data
+package com.lasta.nlp.util
 
 import com.orangesignal.csv.Csv
 import com.orangesignal.csv.CsvConfig

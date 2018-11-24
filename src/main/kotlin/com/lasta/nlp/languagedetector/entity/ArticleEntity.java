@@ -1,4 +1,4 @@
-package com.lasta.data.entity;
+package com.lasta.nlp.languagedetector.entity;
 
 import com.orangesignal.csv.annotation.CsvColumn;
 import com.orangesignal.csv.annotation.CsvEntity;
