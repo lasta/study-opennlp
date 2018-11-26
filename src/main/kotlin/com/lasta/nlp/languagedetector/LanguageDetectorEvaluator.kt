@@ -1,13 +1,14 @@
 package com.lasta.nlp.languagedetector
 
 import com.lasta.nlp.languagedetector.entity.ArticleEntity
+import com.lasta.nlp.util.EvaluateResult
 import com.lasta.nlp.util.Resource
+import com.lasta.nlp.util.write
 import opennlp.tools.langdetect.Language
 import opennlp.tools.langdetect.LanguageDetector
 import opennlp.tools.langdetect.LanguageDetectorME
 import opennlp.tools.langdetect.LanguageDetectorModel
 import java.io.IOException
-import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -28,7 +29,7 @@ object LanguageDetectorEvaluator {
 
         val articles: List<ArticleEntity> = Resource.examineeArticle
 
-        val results: List<Result> = articles.mapIndexed { idx, article ->
+        val results: List<EvaluateResult> = articles.mapIndexed { idx, article ->
             if (idx % 1000 == 0) {
                 println("Progress... $idx")
             }
@@ -36,16 +37,14 @@ object LanguageDetectorEvaluator {
         }
 
         printResult(results)
-        exportResult(results, "data/language-detector/result.tsv")
+        write(results, EvaluateResult::class.java, Paths.get("data/language-detector/result.tsv"))
 
     }
 
-    data class Result(val expected: String, val actual: String, val sentence: String)
-
-    private fun predict(article: ArticleEntity, model: LanguageDetector): Result = Result(
-        expected = article.lang,
+    private fun predict(article: ArticleEntity, model: LanguageDetector): EvaluateResult = EvaluateResult(
+        expect = article.lang,
         actual = article.body.predictLanguage(model),
-        sentence = article.body
+        body = article.body
     )
 
     private fun String.predictLanguage(model: LanguageDetector): String {
@@ -53,24 +52,12 @@ object LanguageDetectorEvaluator {
         return Constant.ISO639_3to1[bestLanguage.lang] ?: "Unknown"
     }
 
-    private fun printResult(results: List<Result>) {
+    private fun printResult(results: List<EvaluateResult>) {
         val examineesCount: Int = results.size
-        val correctAnswerCount: Int = results.filter { it.actual == it.expected }.size
+        val correctAnswerCount: Int = results.filter { it.actual == it.expect }.size
 
         println("Examinees count: $examineesCount")
         println("Correct answer count: $correctAnswerCount")
     }
 
-    private fun exportResult(results: List<Result>, path: String) {
-        try {
-            PrintWriter(Files.newBufferedWriter(Paths.get(path))).use { printer ->
-                printer.println("Expected\tActual\tSentence")
-                results.forEach { result ->
-                    printer.println("${result.expected}\t${result.actual}\t${result.sentence}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
 }

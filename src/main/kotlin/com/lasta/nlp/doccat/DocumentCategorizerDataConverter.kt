@@ -3,10 +3,9 @@ package com.lasta.nlp.doccat
 import com.lasta.nlp.doccat.entity.ArticleEntity
 import com.lasta.nlp.doccat.entity.ArticleWrapper
 import com.lasta.nlp.util.CacheLoader
+import com.lasta.nlp.util.write
 import java.io.File
 import java.io.IOException
-import java.io.PrintWriter
-import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
@@ -35,8 +34,8 @@ object DocumentCategorizerDataConverter {
                 .filter { it.lang == "ja" }
                 .map { it.convert() }
 
-        write(trainingData, "data/doccat/trainer.txt")
-        write(examineeData, "data/doccat/examinee.txt")
+        write(trainingData, ArticleWrapper::class.java, Paths.get("data/doccat/trainer.txt"))
+        write(examineeData, ArticleWrapper::class.java, Paths.get("data/doccat/examinee.txt"))
     }
 
     private fun ArticleEntity.convert(): ArticleWrapper {
@@ -47,15 +46,4 @@ object DocumentCategorizerDataConverter {
         return output
     }
 
-    private fun write(data: List<ArticleWrapper>, path: String) {
-        try {
-            PrintWriter(Files.newBufferedWriter(Paths.get(path))).use { printer ->
-                data.forEach { row ->
-                    printer.println("${row.label}\t${row.body}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
 }

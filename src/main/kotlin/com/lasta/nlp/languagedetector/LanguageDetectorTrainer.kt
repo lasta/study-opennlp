@@ -28,7 +28,5 @@ object LanguageDetectorTrainer {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
     }
-
 }

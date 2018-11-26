@@ -2,10 +2,11 @@ package com.lasta.nlp.doccat
 
 import com.lasta.nlp.doccat.entity.ArticleWrapper
 import com.lasta.nlp.util.CacheLoader
+import com.lasta.nlp.util.EvaluateResult
+import com.lasta.nlp.util.write
 import opennlp.tools.doccat.DoccatModel
 import opennlp.tools.doccat.DocumentCategorizerME
 import java.io.IOException
-import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -26,7 +27,7 @@ object DocumentCategorizerEvaluator {
             exitProcess(1)
         }
 
-        val examinee: List<ArticleWrapper> = try {
+        val examinees: List<ArticleWrapper> = try {
             CacheLoader<ArticleWrapper>().load(
                 Paths.get(EXAMINEE_PATH).toFile(),
                 ArticleWrapper::class.java
@@ -36,16 +37,16 @@ object DocumentCategorizerEvaluator {
             exitProcess(1)
         }
 
-        val results: List<Result> = examinee.map { it.predictCategory(model) }
+        val results: List<EvaluateResult> = examinees.map { it.predictCategory(model) }
         val correctCount = results.filter { it.expect == it.actual }.size
-        println("Examinee Count: ${examinee.size}")
-        println("Correct Count: $correctCount")
+        println("Examinees Count: ${examinees.size}")
+        println("Correct Answers Count: $correctCount")
 
-        write(results, RESULT_PATH)
+        write(results, EvaluateResult::class.java, Paths.get(RESULT_PATH))
     }
 
-    private fun ArticleWrapper.predictCategory(model: DocumentCategorizerME): Result =
-        Result(
+    private fun ArticleWrapper.predictCategory(model: DocumentCategorizerME): EvaluateResult =
+        EvaluateResult(
             expect = this.label,
             actual = this.body.predict(model),
             body = this.body
@@ -54,22 +55,4 @@ object DocumentCategorizerEvaluator {
     private fun String.predict(model: DocumentCategorizerME): String =
         model.getBestCategory(model.categorize(arrayOf(this)))
 
-    data class Result(
-        val expect: String,
-        val actual: String,
-        val body: String
-    )
-
-    private fun write(data: List<Result>, path: String) {
-        try {
-            PrintWriter(Files.newBufferedWriter(Paths.get(path))).use { printer ->
-                printer.println("expect\tactual\tbody")
-                data.forEach { row ->
-                    printer.println("${row.expect}\t${row.actual}\t${row.body}")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
 }

@@ -4,7 +4,7 @@ import com.orangesignal.csv.annotation.CsvColumn;
 import com.orangesignal.csv.annotation.CsvEntity;
 import org.jetbrains.annotations.NotNull;
 
-@CsvEntity(header = false)
+@CsvEntity()
 public class ArticleWrapper {
     @CsvColumn(position = 0, required = true)
     private String label;
